@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle Game</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Varela+Round&display=swap");
+
+body {
+  text-align: center;
+  background-image: url(https://drive.google.com/uc?export=view&id=18Cus4bk_nmc4i7baYJEEJH3DczWFGVFM);
+  /* uc?export=view&id= */
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+main {
+  width: 80%;
+  margin: auto;
+  display: none;
+}
+h1 {
+  background-color: blue;
+  color: white;
+  border-radius: 2rem;
+  font-family: "Varela Round", sans-serif;
+  font-size: 5vw;
+  /*   font-style: italic; */
+}
+input.letter-input {
+  width: calc(80% / 5);
+  text-align: center;
+  font-size: 2rem;
+  background-color: beige;
+  box-shadow: 4px 4px 4px 1px rgba(0, 0, 0, 0.5);
+  /*   h-offset, v-offset, blur, radius, spread radius, rgba() */
+
+  font-size: 3vw;
+  margin: 0 0.3vw;
+  color: black;
+}
+.lose-style {
+  background-color: red;
+  color: white;
+  animation: endAnimation 3s ease infinite;
+}
+.win-style {
+  background-color: green;
+  color: white;
+  animation: endAnimation 3s ease infinite;
+}
+
+/* https://media.tenor.com/oslAUCxTbO4AAAAd/rock-sus.gif */
+
+table {
+  margin: auto;
+  margin-top: 1.5rem;
+  /*   border: 1px solid black; */
+  width: 90%;
+}
+th,
+td {
+  /*   border: 1px solid black; */
+  background-color: beige;
+  box-shadow: 4px 4px 4px 1px rgba(0, 0, 0, 0.5);
+}
+#answer-img {
+  width: 20vw;
+  margin-top: 1rem;
+}
+audio {
+  display: none;
+}
+
+#character-image {
+  height: 40vh;
+  margin-right: 5rem;
+  /* margin-bottom: 2rem; */
+  display: inline-block;
+}
+
+#game-text {
+  width: 50vw;
+  /*   margin-left: auto; */
+  /*   margin-right: auto; */
+  text-align: center;
+  background-color: blue;
+  font-size: 1.5vw;
+  color: white;
+  padding: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-family: "Varela Round", sans-serif;
+  border-radius: 2rem;
+  display: inline-block;
+}
+
+#try-again {
+  display: none;
+  font-size: 2rem;
+  padding: 0.5rem;
+  border-radius: 15px;
+  font-family: "Varela Round", sans-serif;
+  background-color: blue;
+  color: white;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 1rem;
+  margin-bottom: 5rem;
+}
+
+@keyframes endAnimation {
+  0% {
+    transform: rotate(0deg) scale(100%);
+  }
+  25% {
+    transform: rotate(45deg) scale(125%);
+  }
+  50% {
+    transform: rotate(0deg) scale(150%);
+  }
+  75% {
+    transform: rotate(-45deg) scale(125%);
+  }
+  100% {
+    transform: rotate(0deg) scale(100%);
+  }
+}
+
+    </style>
+</head>
+<body>
+    <!-- <img src="" width="" height="500" id="character-image" alt="character-select-image" /> -->
+<h1 id="choose-character-header">CHOOSE YOUR CHARACTER</h1>
+<select name="image-choice" id="image-select">
+  <option value="" disabled selected>Choose Your Character</option>
+  <option value="mario-raccoon">Tanooki Mario</option>
+  <option value="dk-fire">Fire Donkey Kong</option>
+  <option value="dk-black">Donkey Kong</option>
+  <option value="mario-cat">Cat Mario</option>
+  <option value="lanky-kong">Lanky Kong</option>
+  <option value="wario">Wario</option>
+  <option value="knuckles">Ugandan Knuckles</option>
+  <option value="fishstick">Fishstick Fortnite</option>
+  <option value="gordon-ramsey">Gordon Ramsey</option>
+</select>
+<audio id="character-audio" controls>
+  <source src="" type="audio/ogg">
+  Your browser does not support mp3 audio
+</audio>
+
+<main id="game-container">
+  <h1>Guess The Password!</h1>
+  <img src="" width="" height="" id="character-image" alt="character-select-image" />
+  <div id="game-text">
+    <p>Everything is lowercase</p>
+    <p id="hint"></p>
+    <p>Wrong Guesses: <span id="wrong-guess-count">0</span> </p>
+    <p>Games Won: <span id="games-won-count">0</span> </p>
+    <p>Games Lost: <span id="games-lost-count">0</span> </p>
+  </div>
+  <br>
+  <button type="button" id="try-again" onclick="resetGame()">Try Again?</button>
+
+  <form id="password-form">
+    <!--     <input class="letter-input" type="text" maxLength="1">
+    <input class="letter-input" type="text" maxLength="1">
+    <input class="letter-input" type="text" maxLength="1">
+    <input class="letter-input" type="text" maxLength="1">
+    <input class="letter-input" type="text" maxLength="1"> -->
+  </form>
+
+  <!--   <div id="game-text">
+    <p>Everything is lowercase</p>
+    <p id="hint"></p>
+    <p>Wrong Guesses: <span id="wrong-guess-count">0</span> </p>
+    <p>Games Won: <span id="games-won-count">0</span> </p>
+    <p>Games Lost: <span id="games-lost-count">0</span> </p>
+  </div> -->
+
+  <table>
+    <thead>
+      <tr>
+        <th>Wrong:</th>
+        <th>Wrong:</th>
+        <th>Wrong:</th>
+        <th>Wrong:</th>
+        <th>Wrong:</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td id="td0">X:</td>
+        <td id="td1">X:</td>
+        <td id="td2">X:</td>
+        <td id="td3">X:</td>
+        <td id="td4">X:</td>
+      </tr>
+    </tbody>
+  </table>
+  <img src="" id="answer-img" />
+</main>
+    <script>
+const imageSelect = document.getElementById("image-select");
+
+const characterImg = document.getElementById("character-image");
+
+const characterAudio = document.getElementById("character-audio");
+
+const dkBananaAudio =
+  "https://drive.google.com/uc?id=1PTD4hq5_SMJ0R6dwj9k4fNFvh8CPLx0A";
+
+const dkOpenerMusic =
+  "https://drive.google.com/uc?id=1-8TV7HoWLuQT0F3USvHeS1U_0TXRVkpP";
+
+const choralChorus =
+  "https://drive.google.com/uc?id=1KmLUE2wfHnuvxxFL_FeEQMvca8BzymTB";
+
+// http://soundfxcenter.com/video-games/donkey-kong/8d82b5_Donkey_Kong_8-Bit_Opening_Song.mp3
+
+const marioRaccoonSrc =
+  "https://drive.google.com/uc?export=view&id=1Zehno27FMtG5hDd-TyFRky9wyv53lcHj";
+const marioCatSrc =
+  "https://drive.google.com/uc?export=view&id=1ZgigMQZ1CmJVYNhZ6vaz7eiKk9ZjfNlY";
+const marioAstroSrc =
+  "https://drive.google.com/uc?export=view&id=1ZpeukvmCIX8dy_2md0zDO8rkKZoLHfRT";
+const peachWeddingSrc =
+  "https://drive.google.com/uc?export=view&id=1_2ZQiL4XlmPUI4UEW2fqvRFk4078cErK";
+const peachPinkSrc =
+  "https://drive.google.com/uc?export=view&id=1_4CcPhxb5oAa6Myzh8MZv2Fe7nWiupI_";
+const peachFireSrc =
+  "https://drive.google.com/uc?export=view&id=1_HjCzHSVvQadyuzQeNqCncP8ULKVBtWj";
+const dkIceSrc =
+  "https://drive.google.com/uc?export=view&id=1_Z1aNb5oK-MqI3hmqF_-Ba4tPWjkhAtD";
+const dkFireSrc =
+  "https://drive.google.com/uc?export=view&id=1_bE8cmnBAj1hYNmV_SRnun8NpDZCOMHF";
+const dkBlackSrc =
+  "https://drive.google.com/uc?export=view&id=1_f3Xb2c5vmEXk4l4XEs3RvhQONNxdVpx";
+
+const warioSrc = "https://media.tenor.com/zeBnNPkJa5gAAAAC/wario-fart.gif";
+
+const lankyKongSrc =
+  "https://media.tenor.com/lEKATqfPUrgAAAAi/lanky-kong-funny.gif";
+
+const knucklesSrc =
+  "http://drive.google.com/uc?export=view&id=1-m_nMziIz7_SvEruEQksu1MMozg07BaQ";
+
+const fishstickSrc =
+  "https://drive.google.com/uc?export=view&id=16qk6BNYzbUvYMzlc8FIXTUYT0iyVKpnS";
+
+const gordonRamseySrc =
+  "https://drive.google.com/uc?export=view&id=1Fu9ASqWETqnSNYxRrrz5qmqCShQ2d8_L";
+
+const characterSelectSrc =
+  "https://drive.google.com/uc?export=download&id=1ayfmqbm6-Ab2ws71xBS2SFHoGNdBJNOE";
+
+characterImg.src =
+  "https://pa1.narvii.com/6489/524d20cabd4731dffd6453fb707ab1d2b2b11c52_00.gif";
+
+const gameContainer = document.getElementById("game-container");
+
+const chooseCharacterHeader = document.getElementById(
+  "choose-character-header"
+);
+
+const hint = document.getElementById("hint");
+
+let phrase = "-----";
+
+function pickPhrase() {
+  let ranPhrase = Math.floor(Math.random() * 5);
+  switch (ranPhrase) {
+    case 0:
+      phrase = "monke";
+      hint.textContent = "Hint: This animal lives in the jungle in the trees";
+      break;
+    case 1:
+      phrase = "taser";
+      hint.textContent =
+        "Hint: Police officers use this weapon to immobilize criminals without severe injury";
+      break;
+    case 2:
+      phrase = "moldy";
+      hint.textContent =
+        "Hint: Food typically becomes like this when it passes its expiration date";
+      break;
+    case 3:
+      phrase = "train";
+      hint.textContent = "Hint: A large vehicle used to transport goods";
+      break;
+    case 4:
+      phrase = "jello";
+      hint.textContent = 'Hint: A type of food that goes "haha, boing" ';
+      break;
+  }
+}
+
+imageSelect.addEventListener("change", function () {
+  let userChoice = this.value;
+  console.log(userChoice);
+  imageSelect.style.display = "none";
+  gameContainer.style.display = "initial";
+  chooseCharacterHeader.style.display = "none";
+  pickPhrase();
+
+  if (userChoice == "mario-raccoon") {
+    characterImg.src = marioRaccoonSrc;
+  } else if (userChoice == "dk-fire") {
+    characterImg.src = dkFireSrc;
+    characterAudio.src = dkOpenerMusic;
+    characterAudio.play();
+  } else if (userChoice == "dk-black") {
+    characterImg.src = dkBlackSrc;
+    characterAudio.src = dkBananaAudio;
+    characterAudio.play();
+  } else if (userChoice == "mario-cat") {
+    characterImg.src = marioCatSrc;
+  } else if (userChoice == "mario-space") {
+    characterImg.src = marioAstroSrc;
+  } else if (userChoice == "lanky-kong") {
+    characterImg.src = lankyKongSrc;
+  } else if (userChoice == "wario") {
+    characterImg.src = warioSrc;
+  } else if (userChoice == "knuckles") {
+    characterImg.src = knucklesSrc;
+  } else if (userChoice == "fishstick") {
+    characterImg.src = fishstickSrc;
+    characterAudio.src = choralChorus;
+    characterAudio.play();
+  } else if (userChoice == "gordon-ramsey") {
+    characterImg.src = gordonRamseySrc;
+  }
+
+  console.log(phrase);
+});
+
+const tryAgainButton = document.getElementById("try-again");
+
+const passwordForm = document.querySelector("#password-form");
+
+// initialize game variables
+
+let index = 0;
+const answerImg = document.getElementById("answer-img");
+const wrongSrc = "https://media.tenor.com/oslAUCxTbO4AAAAd/rock-sus.gif";
+const correctSrc = "https://media.tenor.com/iaEIePNVT6IAAAAC/cat-cat-meme.gif";
+
+for (let char of phrase) {
+  console.log(char);
+  console.log(index);
+  const letterInput = document.createElement("input");
+  letterInput.type = "text";
+  letterInput.classList.add("letter-input");
+  letterInput.maxLength = "1";
+  letterInput.id = index.toString();
+  passwordForm.appendChild(letterInput);
+  index++;
+}
+
+let correctGuess = 0;
+let wrongGuess = 0;
+
+let gamesWon = 0;
+let gamesLost = 0;
+
+const inputOne = document.getElementById("0");
+const inputTwo = document.getElementById("1");
+const inputThree = document.getElementById("2");
+const inputFour = document.getElementById("3");
+const inputFive = document.getElementById("4");
+
+passwordForm.addEventListener("change", function (event) {
+  const thisInput = event.target;
+  const guess = thisInput.value;
+  console.log(thisInput);
+  console.log(guess);
+
+  if (guess === phrase[thisInput.id]) {
+    console.log("You guessed right!");
+    thisInput.style.backgroundColor = "green";
+    characterImg.src = correctSrc;
+    thisInput.style.color = "white";
+    thisInput.disabled = true;
+    // thisInput.placeholder = guess;
+    correctGuess++;
+    console.log(correctGuess);
+    // (thisInput.id + 1).focus();
+    // console.log(
+    if (correctGuess < phrase.length) {
+      let nextID = parseInt(thisInput.id) + 1;
+      document
+        .getElementById(
+          nextID.toString()
+          // toString(thisInput.id + 1)
+        )
+        .focus();
+    }
+    // )
+  } else {
+    console.log("no soup for you!");
+    characterImg.src = wrongSrc;
+    thisInput.style.backgroundColor = "red";
+    thisInput.style.color = "white";
+    wrongGuess++;
+    console.log(wrongGuess);
+    document.getElementById("wrong-guess-count").textContent = wrongGuess;
+    document.getElementById(`td${thisInput.id}`).innerHTML += "<br>" + guess;
+    thisInput.value = "";
+  }
+
+  if (correctGuess === 5) {
+    answerImg.src = "";
+    characterImg.src = "https://media4.giphy.com/media/jsGz81YPCgw9YSliV0/giphy.gif?cid=6c09b952lgkc7m1s6e0n8d2et4lh6b45vkx7gih4qr0m9ngt&ep=v1_stickers_related&rid=giphy.gif&ct=s";
+    inputOne.style.animation = "endAnimation 3s ease-in-out infinite";
+    inputTwo.style.animation = "endAnimation 3s ease-in-out infinite";
+    inputThree.style.animation = "endAnimation 3s ease-in-out infinite";
+    inputFour.style.animation = "endAnimation 3s ease-in-out infinite";
+    inputFive.style.animation = "endAnimation 3s ease-in-out infinite";
+    tryAgainButton.style.display = "block";
+    gamesWon++;
+    document.getElementById("games-won-count").textContent = gamesWon;
+  }
+
+  if (wrongGuess == 10) {
+    answerImg.src = "";
+    tryAgainButton.style.display = "block";
+
+    inputOne.disabled = true;
+    inputTwo.disabled = true;
+    inputThree.disabled = true;
+    inputFour.disabled = true;
+    inputFive.disabled = true;
+
+    inputOne.style.backgroundColor = "red";
+    inputTwo.style.backgroundColor = "red";
+    inputThree.style.backgroundColor = "red";
+    inputFour.style.backgroundColor = "red";
+    inputFive.style.backgroundColor = "red";
+
+    inputOne.style.color = "white";
+    inputTwo.style.color = "white";
+    inputThree.style.color = "white";
+    inputFour.style.color = "white";
+    inputFive.style.color = "white";
+
+    inputOne.value = "W";
+    inputTwo.value = "R";
+    inputThree.value = "O";
+    inputFour.value = "N";
+    inputFive.value = "G";
+
+    characterImg.src =
+      "https://media0.giphy.com/media/1hMbkOaFfYmZvvEBq9/giphy.gif?cid=6c09b9523el2ji40rmve2gjligs4ez2jg24qd6rwvw1xz2ze&ep=v1_internal_gif_by_id&rid=giphy.gif&ct=ts";
+
+    gamesLost++;
+    document.getElementById("games-lost-count").textContent = gamesLost;
+  }
+});
+
+// https://i.imgur.com/A15K8Ei.gif
+
+function resetGame() {
+  correctGuess = 0;
+  wrongGuess = 0;
+  pickPhrase();
+
+  document.getElementById("wrong-guess-count").textContent = "";
+  tryAgainButton.style.display = "none";
+  gameContainer.style.display = "none";
+  chooseCharacterHeader.style.display = "block";
+  imageSelect.style.display = "initial";
+  // imageSelect.value = "Choose Your Character";
+  inputOne.style.animation = "null";
+  inputTwo.style.animation = "null";
+  inputThree.style.animation = "null";
+  inputFour.style.animation = "null";
+  inputFive.style.animation = "null";
+
+  // inputOne.classList.toggle("letter-input");
+
+  answerImg.src = "";
+  inputOne.value = "";
+  inputTwo.value = "";
+  inputThree.value = "";
+  inputFour.value = "";
+  inputFive.value = "";
+
+  inputOne.disabled = false;
+  inputTwo.disabled = false;
+  inputThree.disabled = false;
+  inputFour.disabled = false;
+  inputFive.disabled = false;
+
+  inputOne.style.backgroundColor = "beige";
+  inputTwo.style.backgroundColor = "beige";
+  inputThree.style.backgroundColor = "beige";
+  inputFour.style.backgroundColor = "beige";
+  inputFive.style.backgroundColor = "beige";
+
+  inputOne.style.color = "black";
+  inputTwo.style.color = "black";
+  inputThree.style.color = "black";
+  inputFour.style.color = "black";
+  inputFive.style.color = "black";
+
+  document.getElementById("td0").textContent = "X:";
+  document.getElementById("td1").textContent = "X:";
+  document.getElementById("td2").textContent = "X:";
+  document.getElementById("td3").textContent = "X:";
+  document.getElementById("td4").textContent = "X:";
+
+  imageSelect.value = "";
+}
+
+    </script>
+</body>
+</html>
